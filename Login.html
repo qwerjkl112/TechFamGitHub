@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<title>TechFam</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+<body>
+
+<div class="w3-topnav w3-black">
+	<a href="Login.html">Home</a>
+  	<a href="#">Link 1</a>
+ 	<a href="EnterData.jsp">Seller List</a>
+  	<a href="#">Link 3</a>
+  	
+  	<button onclick="myFunction()" class="w3-btn" style="float:right; padding: 0px 16px !important;">Sign In</button>
+  	<a href="Signup.html" class="w3-btn" style="float:right; padding: 0px 16px !important;">Register</a>
+  	
+    <div id="Demo" class="w3-dropdown-content w3-light-grey w3-display-topright" style="float:right; margin-top: 40px;">
+      <div class="w3-container w3-right-align">
+        <form class="w3-form" action="Login.jsp" style="width:100%" style="float:right" method="post">
+  			<h3>Sign-in</h3>
+ 				<input class="w3-input" type="text" name="username" required>
+ 				<label class="w3-label w3-validate">username</label>
+  				<input class="w3-input" type="password" name="password" required>
+  				<label class="w3-label w3-validate">password</label>
+  				<p><button class="w3-btn">Signin</button></p>
+		</form>
+      </div>
+    </div>
+</div>
+<script>
+function myFunction() {
+    var x = document.getElementById("Demo");
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+        x.className += " w3-third"
+    } else {
+        x.className = x.className.replace(" w3-show", "");
+    }
+}
+</script>
+
+<header class="w3-container w3-blue">
+  <h1>PLEASE EXCUSE THE APPEARANCE...SITE UNDER MAINTIANCE</h1>
+</header>
+
+<div class="w3-container">
+<p>Techfam is proud to represent....</p>
+<p>a prototype of working stuff for 431W</p>
+</div>
+      
+</body>
+</html>
