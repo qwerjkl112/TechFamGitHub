@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<title>Signup - Techfam</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+<body>
+
+<div class="w3-topnav w3-black">
+	<a href="Login.html">Home</a>
+  	<a href="#">Link 1</a>
+ 	<a href="EnterData.jsp">Seller List</a>
+  	<a href="#">Link 3</a>
+  	
+  	<button onclick="myFunction()" class="w3-btn" style="float:right; padding: 0px 16px !important;">Sign In</button>
+  	<a href="Signup.html" class="w3-btn" style="float:right; padding: 0px 16px !important;">Register</a>
+  	
+    <div id="Demo" class="w3-dropdown-content w3-light-grey w3-display-topright" style="float:right; margin-top: 38px;">
+      <div class="w3-container w3-right-align">
+        <form class="w3-form" action="Login.jsp" style="width:100%" style="float:right" method="post">
+  			<h3>Sign-in</h3>
+ 				<input class="w3-input" type="text" name="username" required>
+ 				<label class="w3-label w3-validate">username</label>
+  				<input class="w3-input" type="password" name="password" required>
+  				<label class="w3-label w3-validate">password</label>
+  				<p><button class="w3-btn">Signin</button></p>
+		</form>
+      </div>
+    </div>
+</div>
+<script>
+function myFunction() {
+    var x = document.getElementById("Demo");
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+        x.className += " w3-third"
+    } else {
+        x.className = x.className.replace(" w3-show", "");
+    }
+}
+</script>
+
+<header class="w3-container w3-red">
+  <h1>Sign Up With TechFam Today</h1>
+</header>
+
+<div class="w3-container">
+<p>Techfam is proud to represent....</p>
+</div>
+
+<form class="w3-form w3-half" action="SignUp.jsp">
+  <h2>Fill out your information</h2>
+  <h3>Account Information:</h3>
+  <p><input class="w3-input" name="username" type="text" placeholder="username"></p>
+  <p><input class="w3-input" name="password"type="password" placeholder="password"></p>
+  <p><input class="w3-input" type="password" placeholder="confirm password"></p>
+  <h3>Personal Information:</h3>
+  <p><input class="w3-input" name="name" type="text" placeholder="name"></p>
+  <p><input class="w3-input" name="email" type="text" placeholder="email"></p>
+  <p><select class="w3-select" name="gender">
+    <option value="" disabled selected>Select a Gender that Society Defines You By Not That It Should Affect Your Own Opinion On Who You Are As A Person</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+  </select></p>
+  <p><input class="w3-input" name="age" type="number" placeholder="age"></p>
+  <p><input class="w3-input" name="income" type="number" placeholder="income"></p>
+  <p><input class="w3-input" name="phone_number" type="text" placeholder="phonenumber"></p>
+  <p><input class="w3-input" name="app_num" type="text" placeholder="app number"></p>
+  <p><input class="w3-input" name="street_address" type="text" placeholder="street address"></p>
+  <p><input class="w3-input" name="city" type="text" placeholder="city"></p>
+  <p><input class="w3-input" name="state" type="text" placeholder="state"></p>
+  <p><input class="w3-input" name="zip" type="text" placeholder="zip"></p>
+  <p><input class="w3-input" name="credit_card_name" type="text" placeholder="credit card name"></p>
+  <p><input class="w3-input" name="credit_card_number" type="text" placeholder="credit card number"></p>
+  <p><select class="w3-select" name="type">
+    <option value="" disabled selected>Choose your option</option>
+    <option value="credit">Credit</option>
+    <option value="debit">Debit</option>
+  </select></p>
+  <p><input class="w3-input" name="expiration" type="text" placeholder="expiration"></p>
+  
+  <p><button class="w3-btn" >Register</button></p>
+</form>
+</body>
+</html>
