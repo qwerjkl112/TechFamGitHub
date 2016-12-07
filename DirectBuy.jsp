@@ -23,8 +23,8 @@ String DRIVER_LOC = "com.mysql.jdbc.Driver";
 Get_Drop_Downs gdd = new Get_Drop_Downs();
 
 Connection con = null;
-PreparedStatement select_address, select_credit;
-ResultSet result_address, result_credit;
+PreparedStatement select_address, select_credit, select_item;
+ResultSet result_address, result_credit, result_item;
 ArrayList<Long> credit_card_numbers = new ArrayList<Long>();
 ArrayList<String> credit_star = new ArrayList<String>();
 HashMap<Integer, String> address = new HashMap<Integer, String>();
@@ -88,10 +88,6 @@ try{
 			con.rollback();
 		}
 	}catch(Exception e2){}
-}finally{
-	if(con != null){
-		con.close();
-	}
 }
 
 %>
@@ -100,20 +96,33 @@ try{
 	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
  	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
   	<a href="AddSales_ItemPage.jsp">Add an Item</a>
+  	<a href="MyBid.jsp">My Bids</a>
   	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
-	</div>
+</div>
 <div class="w3-container w3-half w3-red">
-<h1>Item Description</h1>
-<h2>the time is</h2><p id="demo"></p>
-<h2>and all that stuff here</h2>
+<%	
+select_item = con.prepareStatement("SELECT count, item_id, brand, list_price, state, description, name, category_id, supplier_id " + 
+			"FROM sales_item " + 
+			"WHERE item_id = ?");
+select_item.setInt(1, Integer.parseInt((String)session.getAttribute("ItemId")));
+result_item = select_item.executeQuery();
+result_item.next();	// select the item result - this is needed for finding the category and supplier 
+
+%>
+<h1>Item</h1>
+	<p><img src="/hellow/images/<%=result_item.getString("item_id")%>.png" width="250px" height="250px"></p>
+    <p>Item Name: <%= result_item.getString("name") %></p>
+    <p>Brand: <%= result_item.getString("brand") %></p> 
+    <p>List Price: <%= result_item.getString("list_price") %></p>
+    <p>State: <%= result_item.getString("state") %></p>
+    <p>Item Description: <%= result_item.getString("description") %></p>
 </div>
 
 <div class="w3-container w3-half">
   <h2>Please select a type of payment</h2>
-  <h2>your username is <%= session.getAttribute("UserName") %></h2>
-  <h2> supplierid is <%= session.getAttribute("SupplierId") %></h2>
-  <h2> item id is <%= session.getAttribute("ItemId") %></h2>
+
   <form action="DirectBuyItem.jsp">
 	<input type="hidden" name="item_id" value="<%= session.getAttribute("ItemId") %>"/>
 	<input type="hidden" name="amount" value="1"/>
@@ -212,8 +221,8 @@ function myFunction() {
 					
 
 
-<p style='color:red'> This is the user</p>
 
 </body>
+</html>
 
 

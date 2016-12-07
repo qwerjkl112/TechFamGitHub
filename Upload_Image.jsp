@@ -36,7 +36,7 @@ String DRIVER_LOC = "com.mysql.jdbc.Driver";
 
 String SUCCESS_LABEL = "moo";
 
-String IMAGE_DIRECTORY_DIR = "/Users/frankguo/Documents/Javaee/hellow/WebContent/images/";
+String IMAGE_DIRECTORY_DIR = "/Users/frankguo/Documents/Javaee/hellow/WebContent/images";
 
 Connection con = null;
 PreparedStatement select_image_id, insert_image, insert_has_image;
@@ -49,6 +49,7 @@ Integer item_id = null;
 String color = null;
 FileItem realimage = null;
 String name = null;
+int supplier_id = Integer.parseInt((String) session.getAttribute("SupplierId"));
 
 try{
 	if(ServletFileUpload.isMultipartContent(request)){
@@ -150,7 +151,7 @@ try{
 	}
 }
 
-String redirectURL = "sample.jsp";
+String redirectURL = "Profile.jsp?supplier_id="+ supplier_id;
 
 response.sendRedirect(redirectURL);
 

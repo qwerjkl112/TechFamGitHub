@@ -2,91 +2,81 @@
     pageEncoding="UTF-8"%>
 <%@page import="java.sql.*"%>
 <%@page import="javax.sql.*"%>
+<%@page import="java.util.Calendar" %>
+<%@page import="java.text.SimpleDateFormat" %>
 <%Class.forName("com.mysql.jdbc.Driver"); %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+<title>Total Sales Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 <body>
-	
+<div class="w3-topnav w3-black">
+	<a href="Login.html">Sign Out</a>
+	<a href="CompanyUser.jsp">Delivery</a>
+	</div>
 <%
 	
-	//----------------------------------------------------------------------------------------------------------
-	// This jsp file displays the sales report for all your current transactions. Filters include keywords, 
-	// price range, state, and size.
-	//----------------------------------------------------------------------------------------------------------
-	// input: transaction_id
-	// output: the fields below 
-	//----------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------
+	// This jsp file displays sale information for company user
+	//----------------------------------------------------------------------------
+	// input: no input - only need to sign in with correct username and password
+	// output: if adding was succesful
+	//----------------------------------------------------------------------------
 	// databases and fields used: 
-	//  Sales_Item - brand, state, name
-	//	Sale - all fields
-	//	Address - all fields except id (this is where the item is going)
-	//	Register_User - username
-	//----------------------------------------------------------------------------------------------------------
+	//     sale
+	//	sales_item
+	//	category
+	//----------------------------------------------------------------------------
 	
 	
 	Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/techfam?autoReconnect=true&useSSL=false","root", "noclown1");
-	PreparedStatement select_sale, select_saleitem, select_address, select_transaction_id, select_username, select_billing;
-	ResultSet result_sale, result_item, result_address, result_transaction_id, result_username, result_billing;
+	PreparedStatement select_sale, select_item, select_address, select_category;
+	ResultSet result_sale, result_item, result_address, result_category;
+	String auction_or_sale;
+	
+  	String query_sale = "select P.auction_or_sale, P.transaction_id, P.item_id, S.name, C.description, P.price, P.date, A.city, A.state " + 
+  	"from sale P, sales_item S, address A, category C " +
+	"where P.item_id = S.item_id AND P.shipping_address_id = A.address_id AND S.category_id = C.category_id";
+	
+	select_sale = con.prepareStatement(query_sale);
+	result_sale = select_sale.executeQuery();
+	
+%>
 
-	//select sale's info
-	select_sale = con.prepareStatement("SELECT * " + 
-			"FROM Sale S " + 
-			"WHERE S.transaction_id = ?");
-	select_sale.setString(1,  request.getParameter("transaction_id"));
-	result_sale = select_sale.executeQuery();	
-	result_sale.next();
-	
-	//sales_item
-	select_saleitem = con.prepareStatement( "SELECT S.name, S.brand, S.item_id " + 
-			"FROM Sales_Item S " +
-			"WHERE S.item_id = ?");
-	select_saleitem.setInt(1, result_sale.getInt(5));
-	result_item = select_saleitem.executeQuery();	// containts item info
-	
-	//shipping address
-	select_address = con.prepareStatement( "SELECT * " + 
-			"FROM Address A " +
-			"WHERE A.address_id = ?");
-	select_address.setInt(1, result_sale.getInt(7));
-	result_address = select_address.executeQuery();
-	result_address.next();	// contains shipping address
-	
-	// select username
-	select_username = con.prepareStatement( "SELECT C.username, C.billing_address_id " + 
-			"FROM Credit_Card C " +
-			"WHERE C.number = ?");
-	select_username.setLong(1, result_sale.getLong(6));
-	result_username = select_username.executeQuery();
-	result_username.next();	// contains username of buyer
-	
-	//select billing address
-	select_billing = con.prepareStatement( "SELECT * " + 
-			"FROM Address A " +
-			"WHERE A.address_id = ?");
-	select_billing.setInt(1, result_username.getInt(2));
-	result_billing = select_billing.executeQuery();
-	result_billing.next();	// contains billing address
-	
-	// this is just a test display - remove before final product				
-	%>
-
-	<p style='color:red'> This is the user</p>
-	<table style='width:100%'>
+<div class="w3-panel w3-card w3-light-grey"><p>Sales Report</p></div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable" style="width:100%;">
+		<thead>
 	<tr>
-	    <th>Name</th>
-	    <th>ID</th> 
-	  </tr>
-	  <%while(result_item.next()){%>
-	  <tr>
-	    <td><%= result_item.getInt("item_id") %></td>
-	    <td><%= result_item.getString("name") %></td>
-	    <td><%= result_sale.getFloat("price") %></td>
-	    <td><%= result_sale.getInt("date") %></td>
-	    <td><%= result_address.getString("street_address") %></td>
-	    <td><%= result_billing.getString("street_address") %></td>
-	    <td><%= result_username.getString("username") %></td>
-	  </tr>
-	  <% } %>
-
-	  </table>
-	</body>
+	<th>transaction_id</th>
+	<th>item_id</th>
+	<th>Item Name</th>
+	<th>Category</th>
+	<th>Price</th>
+	<th>Purchase Date</th>
+	<th>Purchase Method</th>
+	<th>City</th>
+	<th>State</th>
+	</tr>
+	</thead>
+	<% 	while(result_sale.next()) { %>
+	<% 		if (result_sale.getInt("auction_or_sale") == 1) {auction_or_sale = "auctioned";} else {auction_or_sale = "direct buy";} 
+			long start_long = result_sale.getLong("date");
+			SimpleDateFormat sdf_start = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+			Calendar cal_start = Calendar.getInstance();
+			cal_start.setTimeInMillis(1000*start_long);
+			String start = sdf_start.format(cal_start.getTime());		
+	%>
+  <tr>
+	<td><a href="SalesReport3.jsp?transaction_id=<%=result_sale.getString("transaction_id") %>"><%= result_sale.getString("transaction_id") %></a></td>
+  	<td><%= result_sale.getString("item_id") %></td>
+  	<td><%= result_sale.getString("name") %></td>
+  	<td><%= result_sale.getString("description") %></td>
+  	<td><%= result_sale.getString("price") %></td>
+    <td><%= start %></td>
+    <td><%= auction_or_sale %></td>
+    <td><%= result_sale.getString("city") %></td>
+    <td><%= result_sale.getString("state") %></td>
+  </tr>
+  <%} %>
+  </table>

@@ -14,9 +14,9 @@
   	<button onclick="myFunction()" class="w3-btn" style="float:right; padding: 0px 16px !important;">Sign In</button>
   	<a href="Signup.html" class="w3-btn" style="float:right; padding: 0px 16px !important;">Register</a>
   	
-    <div id="Demo" class="w3-dropdown-content w3-light-grey w3-display-topright" style="float:right; margin-top: 38px;">
+    <div id="Demo" class="w3-dropdown-content w3-light-grey w3-display-topright" style="float:right; margin-top: 40px;">
       <div class="w3-container w3-right-align">
-        <form class="w3-form" action="Login.jsp" style="width:100%" style="float:right" method="post">
+        <form class="w3-form" name="myForm" action="Login.jsp" onsubmit="return validateForm()" style="width:100%" style="float:right" method="post">
   			<h3>Sign-in</h3>
  				<input class="w3-input" type="text" name="username" required>
  				<label class="w3-label w3-validate">username</label>
@@ -37,6 +37,30 @@ function myFunction() {
         x.className = x.className.replace(" w3-show", "");
     }
 }
+function validateForm() {
+    var x = document.forms["myForm"]["username"].value;
+    var y = document.forms["myForm"]["password"].value;
+    if (x == "") {
+        alert("username must be filled out");
+        return false;
+    }
+    if (y == "") {
+        alert("password must be filled out");
+        return false;
+    }
+}
+function SignupForm() {
+    if (document.forms["Signup"]["username"].value == "" ||
+    		document.forms["Signup"]["password"].value == "" ||
+    		document.forms["Signup"]["name"].value == ""||
+    		document.forms["Signup"]["email"].value == ""||
+    		document.forms["Signup"]["age"].value == ""||
+    		document.forms["Signup"]["income"].value == ""||
+    		document.forms["Signup"]["phone_number"].value == "") {
+        alert("Form not filled out correctly");
+        return false;
+    }
+}
 </script>
 
 <header class="w3-container w3-red">
@@ -47,11 +71,11 @@ function myFunction() {
 <p>Techfam is proud to represent....</p>
 </div>
 
-<form class="w3-form w3-half" action="SignUp.jsp">
+<form class="w3-form w3-half" onsubmit="return SignupForm()" name="Signup" action="SignUp.jsp">
   <h2>Fill out your information</h2>
   <h3>Account Information:</h3>
   <p><input class="w3-input" name="username" type="text" placeholder="username"></p>
-  <p><input class="w3-input" name="password"type="password" placeholder="password"></p>
+  <p><input class="w3-input" name="password" type="password" placeholder="password"></p>
   <p><input class="w3-input" type="password" placeholder="confirm password"></p>
   <h3>Personal Information:</h3>
   <p><input class="w3-input" name="name" type="text" placeholder="name"></p>

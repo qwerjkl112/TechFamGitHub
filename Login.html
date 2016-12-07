@@ -6,17 +6,13 @@
 <body>
 
 <div class="w3-topnav w3-black">
-	<a href="Login.html">Home</a>
-  	<a href="#">Link 1</a>
- 	<a href="EnterData.jsp">Seller List</a>
-  	<a href="#">Link 3</a>
   	
   	<button onclick="myFunction()" class="w3-btn" style="float:right; padding: 0px 16px !important;">Sign In</button>
   	<a href="Signup.html" class="w3-btn" style="float:right; padding: 0px 16px !important;">Register</a>
   	
     <div id="Demo" class="w3-dropdown-content w3-light-grey w3-display-topright" style="float:right; margin-top: 40px;">
       <div class="w3-container w3-right-align">
-        <form class="w3-form" action="Login.jsp" style="width:100%" style="float:right" method="post">
+        <form class="w3-form" name="myForm" action="Login.jsp" onsubmit="return validateForm()" style="width:100%" style="float:right" method="post">
   			<h3>Sign-in</h3>
  				<input class="w3-input" type="text" name="username" required>
  				<label class="w3-label w3-validate">username</label>
@@ -37,15 +33,29 @@ function myFunction() {
         x.className = x.className.replace(" w3-show", "");
     }
 }
+function validateForm() {
+    var x = document.forms["myForm"]["username"].value;
+    var y = document.forms["myForm"]["password"].value;
+    if (x == "") {
+        alert("username must be filled out");
+        return false;
+    }
+    if (y == "") {
+        alert("password must be filled out");
+        return false;
+    }
+}
 </script>
 
 <header class="w3-container w3-blue">
-  <h1>PLEASE EXCUSE THE APPEARANCE...SITE UNDER MAINTIANCE</h1>
+  <h1>TechFam</h1>
 </header>
 
 <div class="w3-container">
-<p>Techfam is proud to represent....</p>
-<p>a prototype of working stuff for 431W</p>
+<h1>Techfam is proud to represent....</h1>
+<h2>Tech Fam Shoes:</h2>
+<img alt="Home Page" src="main.jpg" style="text-align:center; display:block; margin:0 auto;" >
+
 </div>
       
 </body>

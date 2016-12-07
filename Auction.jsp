@@ -14,6 +14,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 <body>
+
 <script>
 function DisplayImage() {
     var x = document.createElement("IMG");
@@ -25,14 +26,17 @@ function DisplayImage() {
 }
 </script>
 <div class="w3-topnav w3-black">
-	<a href="Login.html">Home</a>
+	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
  	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
   	<a href="AddSales_ItemPage.jsp">Add an Item</a>
   	<a href="MyBid.jsp">My Bids</a>
   	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="Sign Out" onclick="window.document.location.href='Login.html'"/>
 </div>
 	<%
+	
 	String DATABASE_NAME = "techfam";
 	String DATABASE_USERNAME = "root";
 	String DATABASE_PASSWORD = "noclown1";
@@ -48,6 +52,7 @@ function DisplayImage() {
 	String username = (String) session.getAttribute("UserName");
 	int supplier_id = Integer.parseInt((String) session.getAttribute("SupplierId"));
 	
+	System.out.println(request.getParameter("item_id"));
 	String SQL_AUCTION = 
 			"SELECT TA.item_id, TA.name, TA.description, TA.category_name, "+
 			"TA.timestamp_start, TA.timestamp_end, TA.amount, TP.image FROM " +
@@ -58,7 +63,7 @@ function DisplayImage() {
 			"FROM sales_item I, auction A, Category C "+
 			"WHERE A.item_id = I.item_id AND "+
 			"I.category_id = C.category_id AND "+
-			"A.timestamp_end > 0) AS T1 "+
+			"A.timestamp_end > ?) AS T1 "+
 			"LEFT JOIN "+
 			"(SELECT item_id, auction_timestamp_start, MAX(amount) as amount "+ 
 			"FROM Bid "+
@@ -78,7 +83,7 @@ function DisplayImage() {
 	try{
 		con = DriverManager.getConnection(DATABASE_CONNECT_STRING, DATABASE_USERNAME, DATABASE_PASSWORD);
 		select_auction = con.prepareStatement(SQL_AUCTION);
-		//select_auction.setLong(1, System.currentTimeMillis()/1000);
+		select_auction.setLong(1, System.currentTimeMillis()/1000);
 		result_auction = select_auction.executeQuery();
 		
 		Get_Drop_Downs gdd = new Get_Drop_Downs();
@@ -117,7 +122,7 @@ function DisplayImage() {
     	cal2.setTimeInMillis(end*1000);
     	
     %>
-    <td><%= result_auction.getString("image")%></td>
+    <td><img src="images/<%= result_auction.getString("image")%>" width="200px" height="150px"></td>
   	<td><a href="DisplayItem.jsp?item_id=<%=result_auction.getInt("item_id")%>"><%= result_auction.getString("name") %></a></td>
   	<td><%= result_auction.getString("description") %></td>
     <td><%= result_auction.getString("category_name") %></td>

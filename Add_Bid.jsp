@@ -122,13 +122,17 @@ try{
 	result_highest_bid.next();
 	
 	highest_bid = result_highest_bid.getFloat(1);
-	
+	if(is_auto && amount < reserved){
+		amount = reserved;
+	}
 	// if the timelimit for the auction has not been reached
+	System.out.println("asdfasldfhasldkhgalksdhgal;ksdhgak;sofiewbvklsebiwofbisovgbao;iheihfaiosdh");
 	if(end_time >= System.currentTimeMillis()/1000 && (result_highest_bid.wasNull() || 
 			amount >= highest_bid + MIN_BID_INCREASE) && reserved <= amount && (!is_auto || amount <= max_amount)){
 		
 		// get Max bid id
-	
+		// if the timelimit for the auction has not been reached
+	System.out.println("1");
 		select_bid_id = con.prepareStatement("SELECT MAX(bid_id) FROM Bid");
 
 		result_max_id = select_bid_id.executeQuery();
@@ -156,11 +160,13 @@ try{
 		add_to_bid.setInt(7, Integer.parseInt(request.getParameter("address_id")));
 	
 		add_to_bid.setBoolean(8, is_auto);
-	
+		
 		if(is_auto){
 			add_to_bid.setFloat(9, max_amount);
+			System.out.println("2");
 		}else{
 			add_to_bid.setNull(9, java.sql.Types.DECIMAL);
+			System.out.println("3");
 		}
 	
 		add_to_bid.executeUpdate();
@@ -172,7 +178,7 @@ try{
 		get_autos.setInt(1, item_id);
 		get_autos.setLong(2, start_time);
 		result_autos = get_autos.executeQuery();
-		
+		System.out.println("4");
 		while(result_autos.next()){
 			temp_bid_id = result_autos.getInt(1);
 			temp_max = result_autos.getFloat(2);
@@ -190,6 +196,7 @@ try{
 		}
 		
 		// if there is at least one auto-bid
+		
 		if(high_max >= 0){
 			// if there is more then one auto-bid
 			if(sec_max >= amount + MIN_BID_INCREASE){

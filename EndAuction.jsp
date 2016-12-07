@@ -45,8 +45,8 @@ String SUCCESS_LABEL = "AddSales_Item";
 boolean IDENTIFY_AUCTION = true;
 
 Connection con = null;
-PreparedStatement select_highest_bid, select_reserved_price, delete_auction, add_to_sale, select_bid_info, select_sale_id;
-ResultSet result_highest_bid, result_reserved_price, result_bid_info, result_max_id;
+PreparedStatement select_highest_bid, select_reserved_price, delete_auction, add_to_sale, select_bid_info, select_sale_id, select_ups_id, add_to_ups;
+ResultSet result_highest_bid, result_reserved_price, result_bid_info, result_max_id, result_max__shipping_id;
 
 int bid_id;
 int item_id;
@@ -57,6 +57,7 @@ float reserved_price;
 long credit_card_number;
 int address_id;
 int transaction_id;
+int shipping_id;
 
 try{
 	con = DriverManager.getConnection(DATABASE_CONNECT_STRING, DATABASE_USERNAME, DATABASE_PASSWORD);
@@ -141,6 +142,30 @@ try{
 		add_to_sale.setInt(7, address_id);
 		
 		add_to_sale.executeUpdate();
+		
+		// get Max ups id
+		
+		select_ups_id = con.prepareStatement("SELECT MAX(shipping_id) FROM Ups");
+
+		result_max__shipping_id = select_ups_id.executeQuery();
+
+		result_max__shipping_id.next();
+
+		shipping_id = result_max_id.getInt(1) + 1;
+		
+		// add sale to ups
+		
+		add_to_ups = con.prepareStatement("INSERT INTO Ups VALUES (?, ?, ?, ?)");
+		
+		add_to_ups.setInt(1, shipping_id);
+		
+		add_to_ups.setFloat(2, System.currentTimeMillis()/1000);
+		
+		add_to_ups.setString(3, "Processing");
+		
+		add_to_ups.setInt(4, transaction_id);
+		
+		add_to_ups.executeUpdate();
 	
 	}
 	

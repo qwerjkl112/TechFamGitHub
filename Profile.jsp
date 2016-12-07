@@ -31,20 +31,30 @@
 	
 	
 	Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/techfam?autoReconnect=true&useSSL=false","root", "noclown1");
-	PreparedStatement select_user, select_ratings, select_items, select_auction, select_sale, select_purchases, select_credit_card, select_address, select_auction2;
-	ResultSet result_user, result_ratings, result_items, result_auction, result_sale, result_purchases, result_credit_card, result_address, result_auction2;
-	String sql_query = "SELECT * FROM sale WHERE credit_card_number = ";
-	String sql_query_purchases = "SELECT * FROM "+
-			"(SELECT * "+
-			"FROM sales_item S "+
-			"WHERE S.item_id = ";
-	String sql_query_purchases2 = ")AS T1 "+
+	//Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/techfamforever?autoReconnect=true&useSSL=false","root", "TechFam");
+	
+	PreparedStatement select_user, select_ratings, select_items, select_auction, select_purchases, select_address, select_auction2;
+	ResultSet result_user, result_ratings, result_items, result_auction, result_purchases, result_auction2;
+	
+	String sql_query_purchases = 
+			"SELECT TM.item_id, TM.brand, TM.price, TM.name, TM.state, TM.street_address, TM.image, TM.color, TM.transaction_id, TU.shipping_method FROM "+
+			"(SELECT T1.item_id, T1.brand, T1.price, T1.name, T1.state, T1.street_address, T2.image, T2.color, T1.transaction_id FROM "+
+			"(SELECT S.item_id, S.brand, S.name, S.state, P.price, A.street_address, P.transaction_id "+
+			"FROM sales_item S, sale P, credit_card C, address A "+
+			"WHERE S.item_id = P.item_id AND " +
+			"P.credit_card_number = C.number AND " + 
+			"A.address_id = P.shipping_address_id AND "+
+			"C.username = ? )AS T1 "+
 			"LEFT JOIN "+ 
 			"(SELECT H.item_id as item_id2, I.image, H.color "+
 			"FROM has_visual H, image I "+
 			"WHERE I.img_id = H.img_id) AS T2 "+
-			"ON T1.item_id = T2.item_id2";
-	String sql_query_address = "SELECT * FROM address WHERE address_id = ";
+			"ON T1.item_id = T2.item_id2) AS TM " +
+			"LEFT JOIN " +
+			"(SELECT * " + 
+			"FROM ups) AS TU " +
+			"ON TM.transaction_id = TU.transaction_id";
+	
 	String SQL_AUCTION = 
 			"SELECT TA.item_id, TA.name, TA.description, TA.category_name, "+
 			"TA.timestamp_start, TA.timestamp_end, TA.amount, TA.reserved_price, TP.image FROM " +
@@ -67,6 +77,21 @@
 			"WHERE H.img_id = P.img_id "+
 			"group by H.item_id ) AS TP "+
 			"ON TA.item_id = TP.item_id";
+	
+	String sql_user = 	"SELECT s.name, ru.username, ru.age, ru.gender, ru.income " + 
+   			"FROM suppliers s, register_users ru " + 
+   			"WHERE s.supplier_id = ? and ru.supplier_id = ?";
+
+	String SQL_ITEMS = 	"SELECT * FROM "+
+						"(SELECT * "+
+						"FROM sales_item S "+
+						"WHERE S.supplier_id = ?) AS T1 "+
+						"LEFT JOIN "+ 
+						"(SELECT H.item_id as item_id2, I.image, H.color "+
+						"FROM has_visual H, image I "+
+						"WHERE I.img_id = H.img_id) AS T2 "+
+						"ON T1.item_id = T2.item_id2";
+	
 	String name = null;
 	String username = null;
 	String age = null;
@@ -80,104 +105,44 @@
 	String state = null;
 	long current_time = System.currentTimeMillis()/1000;
 	
-	// find basic user info
-	select_user = con.prepareStatement("SELECT s.name, ru.username, ru.age, ru.gender, ru.income " + 
-					   "FROM suppliers s, register_users ru " + 
-					   "WHERE s.supplier_id = ? and ru.supplier_id = ?");
-	
-	String SQL_ITEMS = 	"SELECT * FROM "+
-			"(SELECT * "+
-			"FROM sales_item S "+
-			"WHERE S.supplier_id = ?) AS T1 "+
-			"LEFT JOIN "+ 
-			"(SELECT H.item_id as item_id2, I.image, H.color "+
-			"FROM has_visual H, image I "+
-			"WHERE I.img_id = H.img_id) AS T2 "+
-			"ON T1.item_id = T2.item_id2";
-	
+	// find all the items the seller has
 	int supplier_id = Integer.parseInt(request.getParameter("supplier_id"));
 	select_items = con.prepareStatement(SQL_ITEMS);
 	select_items.setInt(1, supplier_id);
 	result_items = select_items.executeQuery();
 	
+	// result_user contains desired user information
+	select_user = con.prepareStatement(sql_user);
 	select_user.setInt(1, Integer.parseInt(request.getParameter("supplier_id")));
 	select_user.setInt(2, Integer.parseInt(request.getParameter("supplier_id")));
 	supplier = request.getParameter("supplier_id");
-
-	select_auction2 = con.prepareStatement(SQL_AUCTION);
-	select_auction2.setInt(1, supplier_id);
-	result_auction2 = select_auction2.executeQuery();
-	
-	// result_user contains desired user information
 	result_user = select_user.executeQuery();
-	
-	
-	// find all the ratings for that user
-	select_ratings = con.prepareStatement("SELECT username, value, explanation " + 
-			   		      "FROM rating " + 
-			   		      "WHERE supplier_id = ?");
-	select_ratings.setInt(1, Integer.parseInt(request.getParameter("supplier_id")));
-			
-	// result_ratings contains all ratings for user
-	result_ratings = select_ratings.executeQuery();
-			
-	// find all the items the seller has
-	select_items = con.prepareStatement("SELECT * " + 
-			   		      "FROM sales_item " + 
-			   		      "WHERE supplier_id = ?");
-	select_items.setInt(1, Integer.parseInt(request.getParameter("supplier_id")));
-			
-
-	
-	
-	
-	// select all of the user's credit card number
-	select_credit_card = con.prepareStatement("SELECT number FROM credit_card WHERE username = ?");
-	
 	while(result_user.next()){
 		name = result_user.getString("name");
 		username = result_user.getString("username");
 		age = result_user.getString("age");
 		gender = result_user.getString("gender");
 		income = result_user.getString("income");
-		
-		select_credit_card.setString(1, result_user.getString("username"));
 	}
 	
-	result_credit_card = select_credit_card.executeQuery();
+	// Get all auctions
+	select_auction2 = con.prepareStatement(SQL_AUCTION);
+	select_auction2.setInt(1, supplier_id);
+	result_auction2 = select_auction2.executeQuery();
 	
-	if (result_credit_card.next()) {
-		sql_query += result_credit_card.getLong(1) + " ";
-	}
-	else {
-		sql_query += "-900";
-	}
-	while(result_credit_card.next()) {
-		sql_query += "AND " + result_credit_card.getLong(1) + " ";
-	}
-	select_sale = con.prepareStatement(sql_query);
-	result_sale = select_sale.executeQuery();
-		
+	// find all the ratings for that user
+	select_ratings = con.prepareStatement("SELECT username, value, explanation " + 
+			   		      "FROM rating " + 
+			   		      "WHERE supplier_id = ?");
+	select_ratings.setInt(1, Integer.parseInt(request.getParameter("supplier_id")));
+	// result_ratings contains all ratings for user
+	result_ratings = select_ratings.executeQuery();
 	
-	if (result_sale.next()) {
-		sql_query_purchases += result_sale.getInt(5) + " ";
-		sql_query_address += result_sale.getInt(7) + " ";
-	}
-	else {
-		sql_query_purchases += "-900";
-		sql_query_address += "-900";
-	}
-	while(result_sale.next()) {
-		sql_query_purchases += "AND " + result_sale.getInt(5) + " ";
-		sql_query_address += "AND " + result_sale.getInt(7) + " ";
-	}
 	
-	sql_query_purchases += sql_query_purchases2;
+	// Get all purchases
 	select_purchases = con.prepareStatement(sql_query_purchases);
+	select_purchases.setString(1, username);
 	result_purchases = select_purchases.executeQuery(); // contain item information of user purchases
-	select_address = con.prepareStatement(sql_query_address);
-	result_address = select_address.executeQuery();	// contain shipped to address
-	result_sale = select_sale.executeQuery(); // contain sales involving user's credit card
 	
 // this is just a test display 					
 	%>
@@ -185,8 +150,11 @@
 	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
  	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
   	<a href="AddSales_ItemPage.jsp">Add an Item</a>
-  	<a href="Auction.jsp">Auction</a>
+  	<a href="MyBid.jsp">My Bids</a>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="Sign Out" onclick="window.document.location.href='Logout.jsp'"/>
 </div>
 
 <div class="w3-panel w3-card w3-light-grey"><p>Profile Details</p></div>
@@ -220,18 +188,22 @@
 	<th>State</th>
 	<th>Price</th>
 	<th>Shipped To</th>
+	<th>Shipping Status</th>
 	</tr>
 	</thead>
     <%while(result_purchases.next()){%>
   <tr>
-  	<td><%= result_purchases.getString("image") %></td>
-  	<td><%= result_purchases.getString("name") %></td>
+  	<td><img src="/hellow/images/<%= result_purchases.getString("image")%>" width="200px" height="100px"></td>
+  	<td><a href="DisplayItem.jsp?item_id=<%=result_purchases.getString("item_id")%>"><%= result_purchases.getString("name") %></a></td>
     <td><%= result_purchases.getString("brand") %></td>
     <td><%= result_purchases.getString("state") %></td>
-    <%result_sale.next(); %>
-    <td><%= result_sale.getString("price") %></td>
-    <%result_address.next(); %>
-    <td><%= result_address.getString("street_address") %></td>
+    <td><%= result_purchases.getString("price") %></td>
+    <td><%= result_purchases.getString("street_address") %></td> 
+    <%if(result_purchases.getString("shipping_method") != null) { %>
+    <td><%= result_purchases.getString("shipping_method") %>
+    <%}else{ %>
+    <td>Pending<td>
+    <%} %>
   </tr>
   <%} %>
   </table>
@@ -276,8 +248,8 @@
     <th>Reserved Price</th>
   </tr>
   <tr>
-    <td><%= image%></td>
-  	<td><%=  name2%></td>
+    <td><img src="/hellow/images/<%=image %>" width="200px" height="100px"></td>
+  	<td><a href="DisplayItem.jsp?item_id=<%=item_id%>"><%= name2 %></a></td>
     <td><%= start%></td>
     <td><%= end%></td>
     <td><%= amount%></td>
@@ -287,9 +259,9 @@
 
 <%if(current_time > end_long && (Integer.parseInt((String) session.getAttribute("SupplierId")) == Integer.parseInt(request.getParameter("supplier_id")))){ %>
 <form action="EndAuction.jsp">
-	<input type="hidden" name="item_id" value=<%=item_id %> />
+	<input type="hidden" name="item_id" value=<%=item_id%> />
 	<input type="hidden" name="supplier_id" value=<%=Integer.parseInt(request.getParameter("supplier_id"))%> />
-	<input type="hidden" name="auction_timestamp_start" value=<%= start_long%> />
+	<input type="hidden" name="auction_timestamp_start" value=<%=start_long%> />
 	<input value="Complete Auction" type="submit"/>
 </form>
 <%} %>
@@ -297,6 +269,17 @@
 </div>
  <%} %>
 <div class="w3-panel w3-card w3-light-grey"><p>My Items</p></div>
+
+<div id="image" class="w3-dropdown-content w3-light-grey" style="float:right;">
+      <div class="w3-container w3-right-align">
+        
+<form action="Upload_Image.jsp" method="post" enctype="multipart/form-data">
+<input type="hidden" name="item_id" value=""/>
+<input type="file" name="pic"/>
+<input type="submit" value="Upload"/>
+</form>
+      </div>
+    </div>
 <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable" style="width:100%;">
 	<thead>
 	<tr>
@@ -315,27 +298,31 @@
 	</thead>
     <%while(result_items.next()){%>
   <tr>
-	<td><%= result_items.getString("image") %></td>
-  	<td><%= result_items.getString("name") %></td>
+	<td><img src="/hellow/images/<%= result_items.getString("image") %>" width="200px" height="100px"> 
+	<%if(result_items.getString("image") == null){ %>
+	<form action="Upload_Image.jsp" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="item_id" value="<%=result_items.getString("item_id")%>"/>
+		<input type="hidden" name="color" value="white"/>
+		<input type="file" name="pic"/>
+		<input type="submit" value="Upload"/>
+	</form>
+	<%}%>
+	<% String id_temp =  result_items.getString("item_id"); %>
+  	<td><a href="DisplayItem.jsp?item_id=<%=result_items.getString("item_id")%>"><%= result_items.getString("name") %></a></td>
   	<td><%= result_items.getString("count") %></td>
     <td><%= result_items.getString("brand") %></td>
     <td><%= result_items.getString("state") %></td>
     <td><%= result_items.getString("description") %></td>
     <td><%= result_items.getString("list_price") %></td>
     <td><%= result_items.getString("reserved_price") %></td>
-    <% if(Integer.parseInt((String) session.getAttribute("SupplierId")) == Integer.parseInt(request.getParameter("supplier_id"))){ %>
-    <td><button onclick="StartAuction()" class="w3-btn w3-light-grey">Auction</button><div id="auction" class="w3-dropdown-content w3-light-grey w3-left" style="left:50%;">
-    		<div class="w3-container w3-right-align">
-        		<form class="w3-form" action="Start_Auction.jsp" style="width:100%" style="float:left" method="post">
-	  				<h3>Auction End Time</h3>
-	 				<input class="w3-input" type="text" name="timestamp_end" required>
-	 				<label class="w3-label w3-validate">Time to end</label>
-	 				<input type="hidden" name="item_id" value="<%= result_items.getInt("item_id") %>"/>
+    <td><% if(Integer.parseInt((String) session.getAttribute("SupplierId")) == Integer.parseInt(request.getParameter("supplier_id"))){ %>
+        <form class="w3-form" action="Start_Auction.jsp" style="width:100%" style="float:left" method="post">
+	 				<input class="w3-input w3-sand" type="text" name="timestamp_end" required>
+	 				<input type="hidden" name="item_id" value="<%= id_temp %>"/>
 	 				<input type="hidden" name="supplier_id" value="<%= Integer.parseInt(request.getParameter("supplier_id")) %>"/>
 	 				<p><button class="w3-btn" type="submit" >Start this Auction</button></p>
-				</form>
-     		</div>
-      </div></td>
+		</form>
+     </td>
       <%} %>
   </tr>
   <%} %>
@@ -360,7 +347,11 @@
 	<th>explanation</th>
 </tr>
 </thead>
-    <%while(result_ratings.next()){%>
+	<%float average, total = 0, count=0; %>
+    <%while(result_ratings.next()){
+    total+= (result_ratings.getFloat("value"));
+    System.out.println(total);
+    count++;%>
   <tr>
 	 <td><%= result_ratings.getString("username") %></td>
 	 <td><%= result_ratings.getString("value") %></td>
@@ -368,6 +359,7 @@
   </tr>
   <%} %>
   </table>
+  <div class="w3-panel w3-card w3-pale-green"><p>This user's average rating is <%=total/count%></p></div>
 <%if(Integer.parseInt((String) session.getAttribute("SupplierId")) != Integer.parseInt(request.getParameter("supplier_id"))){ %>
 <div class="w3-panel w3-card w3-light-grey"><p>Input Form</p></div>
 <form class="w3-form" action="AddComment.jsp">
@@ -387,5 +379,4 @@
 <%} %>
 </body>
 </html>
-
 

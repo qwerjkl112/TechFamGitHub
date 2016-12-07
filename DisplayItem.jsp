@@ -23,9 +23,12 @@ function DisplayImage() {
 	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
  	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
   	<a href="AddSales_ItemPage.jsp">Add an Item</a>
+  	<a href="MyBid.jsp">My Bids</a>
   	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
-	</div>
+</div>
+
 	<%
 	
 	//----------------------------------------------------------------------------------------------------------
@@ -120,7 +123,11 @@ result_comments = select_comments.executeQuery();
 	<th>explanation</th>
 </tr>
 </thead>
-    <%while(result_comments.next()){%>
+    <%float average, total = 0, count=0; %>
+    <%while(result_comments.next()){
+    total+= (result_comments.getFloat("value"));
+    System.out.println(total);
+    count++;%>
   <tr>
 	 <td><%= result_comments.getString("username") %></td>
 	 <td><%= result_comments.getString("value") %></td>
@@ -144,5 +151,6 @@ result_comments = select_comments.executeQuery();
   <p><textarea class="w3-input" name="explanation" placeholder="Subject"></textarea></p>
   <p><button class="w3-btn">Submit</button></p>
 </form>
+  <div class="w3-panel w3-card w3-pale-green"><p>This user's average rating is <%=total/count%></p></div>
 <a class="w3-btn w3-ripple w3-teal" href="DirectBuy.jsp" >Buy this item</a> 
 </body>

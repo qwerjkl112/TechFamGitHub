@@ -28,8 +28,11 @@ function DisplayImage() {
 	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
  	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
   	<a href="AddSales_ItemPage.jsp">Add an Item</a>
-  	<a href="Auction.jsp">Auction</a>
+  	<a href="MyBid.jsp">My Bids</a>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="Sign Out" onclick="window.document.location.href='Login.html'"/>
 </div>
 	<%
 	String DATABASE_NAME = "techfam";
@@ -136,7 +139,7 @@ function DisplayImage() {
     
   </tr>
   <tr>
-    <td><%= image%></td>
+    <td><img src="images/<%= image%>" width="200px" height="150px"></td>
   	<td><a href="DisplayItem.jsp?item_id=<%=item_id%>"><%= name%></a></td>
     <td><%= start%></td>
     <td><%= end%></td>

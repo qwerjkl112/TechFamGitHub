@@ -2,7 +2,11 @@
     pageEncoding="UTF-8"%>
 <%@page import="java.sql.*"%>
 <%@page import="javax.sql.*"%>
+<%@page import="java.util.*"%>
 <%@page import="java.util.Date.*"%>
+<%@page import="javax.mail.*" %>
+<%@page import="javax.mail.internet.*"%>
+<%@page import="javax.activation.*"%>
 <%Class.forName("com.mysql.jdbc.Driver"); %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -30,7 +34,7 @@
 	ResultSet result;
 	int new_supplier_ID, new_address_ID;
 	long temp, age = 0, income=0;
-	Date temp_date;
+	java.util.Date temp_date;
 	
 	// check if username is valid
 	check_username = con.prepareStatement("SELECT username FROM register_users WHERE username = ?");
@@ -148,12 +152,59 @@
 	
 	
 	// insert credit card
-	insert_card = con.prepareStatement("INSERT INTO credit_card " + "VALUES (?,?,?,?)");
+	insert_card = con.prepareStatement("INSERT INTO credit_card " + "VALUES (?,?,?,?,?,?)");
 	insert_card.setLong(1, Long.parseLong(request.getParameter("credit_card_number")));
 	insert_card.setString(2, request.getParameter("credit_card_name"));
 	insert_card.setString(3, request.getParameter("type"));
-	insert_card.setDate(4, java.sql.Date.valueOf(request.getParameter("expiration")));
+	insert_card.setString(4, request.getParameter("expiration"));
+	insert_card.setString(5, request.getParameter("username"));
+	insert_card.setInt(6, new_address_ID);
 	insert_card.executeUpdate();
+	
+	String to = request.getParameter("email");
+	final String from = "techfamshoes@gmail.com";
+	final String password = "TechFam1234";
+
+	String HEADER = "Test";
+	String BODY = "Test";
+
+	Properties sproperties = System.getProperties();
+	sproperties.setProperty("mail.smtp.host", "smtp.googlemail.com");
+	sproperties.setProperty("mail.smtp.port", "587");
+	sproperties.setProperty("mail.smtp.user", from);
+	sproperties.setProperty("mail.smtp.password", password);
+	sproperties.setProperty("mail.smtp.auth", "true"); 
+	sproperties.put("mail.smtp.starttls.enable", "true");
+
+	Session mail_session = Session.getDefaultInstance(sproperties, new javax.mail.Authenticator() {
+	    protected PasswordAuthentication getPasswordAuthentication() {
+	        return new PasswordAuthentication(from, password);
+	    }
+	});
+
+	try{
+		MimeMessage message = new MimeMessage(mail_session);
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+		message.setFrom(new InternetAddress(from));
+		
+		//Write Message
+		message.setSubject(HEADER);
+		message.setText(BODY);
+		
+		//Send
+		Transport.send(message, from, password);
+		System.out.println("Mail Sent");
+	}catch(Exception e){
+		e.printStackTrace();
+		try{
+			if(con != null){
+				con.rollback();
+				System.out.println("rollback baby");
+			}
+		}catch(Exception e2){}
+		System.out.println("Failed to Send");
+	}
+	
 	
 	String redirectURL = String.format("Profile.jsp?supplier_id=%s", new_supplier_ID);
 	response.sendRedirect(redirectURL);

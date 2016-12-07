@@ -110,14 +110,21 @@ try{
 %>
 
 <div class="w3-topnav w3-black">
-	<a href="Login.html">Home</a>
+	<a href="Login.jsp">Home</a>
   	<a href="Login.jsp">Suppliers</a>
- 	<a href="#">Link 2</a>
-  	<a href="#">Link 3</a>
+ 	<a href="Auction.jsp">Auction</a>
+ 	<a href="Custom_Shoes.jsp">Custom Shoes</a>
+  	<a href="AddSales_ItemPage.jsp">Add an Item</a>
+  	<a href="MyBid.jsp">My Bids</a>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="myprofile" onclick="window.document.location.href='Profile.jsp?supplier_id=<%=session.getAttribute("SupplierId")%>'"/>
+  	<input type="button" class="w3-btn" style="float:right; padding: 0px 16px !important;" value="Sign Out" onclick="window.document.location.href='Login.html'"/>
+</div>
+<div class="w3-container w3-red">
+  <h1>Create a new Listing</h1>
 </div>
 
-<div class="w3-container">
-	<form class="w3-form w3-half" action="AddSales_Item.jsp">
+<div class="w3-container" style="text-align:center; display:block; margin:0 auto;">
+	<form class="w3-form" action="AddSales_Item.jsp">
 	  <h2>Fill out your information</h2>
 	  <h3>Item Information:</h3>
 	  <p><input class="w3-input" name="name" type="text" placeholder="Product Name"></p>
@@ -165,8 +172,6 @@ function myFunction() {
 
 					
 
-
-<p style='color:red'> This is the user</p>
 
 </body>
 
